@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LLMForge
 
-## Getting Started
+**LLMForge** is a fullstack platform for developers to deploy, configure, and interact with large language models (LLMs) — using their **own cloud compute** through federated infrastructure.
 
-First, run the development server:
+Designed to resemble internal ML tools used by growing AI teams, LLMForge allows users to authenticate, provision model instances, manage settings like temperature/top-k, and get secure API access — all without needing to host or fund centralized compute.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+> 🌐 Supports **federated compute**: run your LLMs using services like Google Colab, GCP, or AWS — connected securely through your own credentials.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> ⚙️ Automatically configures and provisions optimized compute instances based on your selected model, balancing performance, resource constraints, and cost efficiency.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Goal
 
-## Learn More
+LLMForge was built to simulate a real-world, developer-oriented LLM management tool — combining fullstack engineering, modern DevOps, and AI integration.
 
-To learn more about Next.js, take a look at the following resources:
+Its goals include:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Federated Deployment**: Let users bring their own infrastructure (BYOC) by connecting Colab, GCP, or AWS through OAuth-based flows
+- **Secure Access**: Generate and manage scoped API keys per model instance
+- 🛠**Frontend Control Panel**: Configure model parameters and launch prompt sessions via web UI
+- **DevOps-Ready**: Built with CI/CD, Vercel, Clerk, Terraform, and containerized backends (FastAPI in progress)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## What Is Federated Infrastructure?
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Rather than hosting inference centrally (which is costly and limited), LLMForge allows users to link **their own compute resources**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Authenticate with your Google account (Colab/GCP)
+- Provision infrastructure dynamically (e.g. a Colab notebook, GCP function)
+- Deploy models via automated templates or your own scripts
+- 🎛Control settings via LLMForge and use generated API keys locally or in your apps
+
+This makes LLMForge especially useful for:
+
+- AI devs with free or budget compute credits
+- Hobbyists using Colab for experimentation
+- Small teams needing secure but flexible model orchestration
+
+---
