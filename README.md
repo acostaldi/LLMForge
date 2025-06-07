@@ -12,13 +12,13 @@ Designed to resemble internal ML tools used by growing AI teams, LLMForge allows
 
 ## Project Goal
 
-LLMForge was built to simulate a real-world, developer-oriented LLM management tool — combining fullstack engineering, modern DevOps, and AI integration.
+LLMForge was built to be a hobbyist and developer oriented LLM management tool — combining fullstack engineering, modern DevOps, and AI integration.
 
 Its goals include:
 
 - **Federated Deployment**: Let users bring their own infrastructure (BYOC) by connecting Colab, GCP, or AWS through OAuth-based flows
 - **Secure Access**: Generate and manage scoped API keys per model instance
-- 🛠**Frontend Control Panel**: Configure model parameters and launch prompt sessions via web UI
+- **Frontend Control Panel**: Configure model parameters and launch prompt sessions via web UI
 - **DevOps-Ready**: Built with CI/CD, Vercel, Clerk, Terraform, and containerized backends (FastAPI in progress)
 
 ---
