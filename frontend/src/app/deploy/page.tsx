@@ -7,7 +7,9 @@ export default function DeployPage() {
   const router = useRouter();
   const [model, setModel] = useState("");
   const [provider, setProvider] = useState("");
-  const [status, setStatus] = useState("Running");
+  //TODO make this dynamic
+  //const [status, setStatus] = useState("Running");
+  const status = "Running";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
