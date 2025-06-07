@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function DeployPage() {
   const router = useRouter();
   const [model, setModel] = useState("");
-  const [provider, setProvider] = useState("Colab");
+  const [provider, setProvider] = useState("");
   const [status, setStatus] = useState("Running");
 
   const handleSubmit = async (e: React.FormEvent) => {
