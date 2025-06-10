@@ -175,19 +175,43 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
         {/* Chat Input */}
         <form
             onSubmit={(e) => {
-                e.preventDefault();
-                if (!input.trim()) return;
+            e.preventDefault();
+            if (!input.trim() || !deployment) return;
 
-                const newMessages = [
-                ...messages,
-                { sender: "user" as const, text: input },
-                { sender: "bot" as const, text: "LLM response coming soon..." }
-                ];
+            // Show user's message immediately
+            const newMessages = [...messages, { sender: "user" as const, text: input }];
+            setMessages(newMessages);
 
-                setMessages(newMessages);
-                localStorage.setItem(`messages-${id}`, JSON.stringify(newMessages));
-                setInput("");
-            }}
+            // Prepare request payload
+            const payload = {
+              deployment_id: deployment.id,
+              message: input,
+              settings: deployment.settings,
+            };
+
+            //TODO Make this work with a real backend, just just localhost
+            const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+            // Send to backend
+            fetch(`${BACKEND_URL}/api/chat`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            })
+              .then((res) => res.json())
+              .then((data) => {
+                const updated = [...newMessages, { sender: "bot" as const, text: data.response }];
+                setMessages(updated);
+                localStorage.setItem(`messages-${deployment.id}`, JSON.stringify(updated));
+              })
+              .catch((err) => {
+                const errorReply = { sender: "bot" as const, text: "⚠️ Failed to contact model." };
+                const updated = [...newMessages, errorReply];
+                setMessages(updated);
+              });
+
+            setInput(""); // Clear input field
+          }}
             className="flex space-x-2"
             >
                 
