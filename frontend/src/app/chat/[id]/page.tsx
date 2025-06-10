@@ -205,10 +205,11 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
                 localStorage.setItem(`messages-${deployment.id}`, JSON.stringify(updated));
               })
               .catch((err) => {
-                const errorReply = { sender: "bot" as const, text: "⚠️ Failed to contact model." };
-                const updated = [...newMessages, errorReply];
-                setMessages(updated);
-              });
+              console.error("Chat request failed:", err); // ✅ use err
+              const errorReply = { sender: "bot" as const, text: "⚠️ Failed to contact model." };
+              const updated = [...newMessages, errorReply];
+              setMessages(updated);
+            });
 
             setInput(""); // Clear input field
           }}
