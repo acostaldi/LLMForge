@@ -30,7 +30,7 @@ Rather than hosting inference centrally (which is costly and limited), LLMForge 
 - Authenticate with your Google account (Colab/GCP)
 - Provision infrastructure dynamically (e.g. a Colab notebook, GCP function)
 - Deploy models via automated templates or your own scripts
-- 🎛Control settings via LLMForge and use generated API keys locally or in your apps
+- Control settings via LLMForge and use generated API keys locally or in your apps
 
 This makes LLMForge especially useful for:
 
