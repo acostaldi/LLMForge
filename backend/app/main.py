@@ -5,18 +5,23 @@ from app.routes import generate_notebook
 
 app = FastAPI()
 
-app.include_router(generate_notebook.router)
+# Define allowed origins
+origins = [
+    "https://llm-forge.vercel.app",  # Production
+    "https://llm-forge-git-feature-google-c-d20474-amadeo-costaldis-projects.vercel.app",  # Preview branch
+]
 
-# Allow frontend to call API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with frontend domain in production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Define request body schema
+app.include_router(generate_notebook.router)
+
+# Request body schema for testing
 class ChatRequest(BaseModel):
     deployment_id: str
     message: str
@@ -25,5 +30,4 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
-    # For now, just echo back the message
     return {"response": f"Echo: {req.message}"}
