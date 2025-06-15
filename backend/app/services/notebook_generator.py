@@ -2,9 +2,7 @@ from google.cloud import storage
 import uuid
 import nbformat
 import os
-import json
 import tempfile
-import datetime
 
 def generate_notebook_file(model: str, temperature: float, top_k: int, max_tokens: int, user_id: str) -> str:
     nb = nbformat.v4.new_notebook()
@@ -21,20 +19,15 @@ print(result)
     ]
 
     filename = f"{user_id}/{uuid.uuid4()}.ipynb"
-    bucket_name = os.getenv("LLMFORGE_NOTEBOOKS") 
+    bucket_name = os.getenv("LLMFORGE_NOTEBOOKS")
 
-    # Write to a temp file
     with tempfile.NamedTemporaryFile(mode='w+', suffix=".ipynb", delete=False) as tmp:
         nbformat.write(nb, tmp)
         tmp.flush()
 
-        # Upload to GCS
         client = storage.Client()
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(filename)
         blob.upload_from_filename(tmp.name)
 
-        # Optional: Make public if desired
-        blob.make_public()
-
-        return blob.public_url
+    return filename

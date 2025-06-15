@@ -27,6 +27,20 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
   const [input, setInput] = useState("");
   const [apiKey, setApiKey] = useState<string>("");
   const [notebookUrl, setNotebookUrl] = useState<string | null>(null);
+  
+  const fetchSignedNotebookURL = (path: string) => {
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    fetch(`${BACKEND_URL}/api/get-notebook-url`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notebook_path: path }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.signed_url) setNotebookUrl(data.signed_url);
+      })
+      .catch((err) => console.error("Signed URL fetch error:", err));
+  };
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("deployments") || "[]");
@@ -66,8 +80,10 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
         })
           .then((res) => res.json())
           .then((data) => {
-            setNotebookUrl(data.notebook_url);
-            localStorage.setItem(`notebook-${id}`, data.notebook_url);
+            const path = data.notebook_path;
+            if (!path) return;
+            localStorage.setItem(`notebook-path-${id}`, path);
+            fetchSignedNotebookURL(path);
           })
           .catch((err) => console.error("Notebook fetch error:", err));
       }
@@ -119,19 +135,30 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
             <p><strong>Provider:</strong> {deployment.provider}</p>
             <p><strong>Status:</strong> {deployment.status}</p>
             <p><strong>Created:</strong> {deployment.createdAt}</p>
-            {notebookUrl && (
-              <p>
-                <strong>Notebook:</strong>{" "}
-                <a
-                  href={notebookUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  Open in Colab
-                </a>
-              </p>
-            )}
+            <div>
+              <h2 className="font-semibold text-lg mb-1">Details</h2>
+              <p><strong>Provider:</strong> {deployment.provider}</p>
+              <p><strong>Status:</strong> {deployment.status}</p>
+              <p><strong>Created:</strong> {deployment.createdAt}</p>
+            </div>
+
+            <div>
+              <h2 className="font-semibold text-lg mt-4 mb-2">Notebook</h2>
+              {notebookUrl ? (
+                <p>
+                  <a
+                    href={notebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    Open in Colab
+                  </a>
+                </p>
+              ) : (
+                <p className="text-gray-500 text-sm">Notebook is being prepared...</p>
+              )}
+            </div>
           </div>
 
           {/* Settings */}

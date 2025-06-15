@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from app.routes import generate_notebook
+from app.routes import generate_notebook, get_notebook_url 
 
 app = FastAPI()
 
@@ -20,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(generate_notebook.router)
+app.include_router(get_notebook_url.router)
 
 # Request body schema for testing
 class ChatRequest(BaseModel):
