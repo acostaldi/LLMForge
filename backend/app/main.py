@@ -8,7 +8,7 @@ app = FastAPI()
 # Define allowed origins
 origins = [
     "https://llm-forge.vercel.app",  # Production
-    "https://llm-forge-git-feature-google-c-d20474-amadeo-costaldis-projects.vercel.app",  # Preview branch
+    "https://llm-forge-git-dev-amadeo-costaldis-projects.vercel.app", #Dev
 ]
 
 app.add_middleware(
