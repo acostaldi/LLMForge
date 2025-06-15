@@ -61,3 +61,4 @@ infra/.terraform/
 
 # Generated Notebooks
 backend/generated_notebooks/
+service-account-key.json
