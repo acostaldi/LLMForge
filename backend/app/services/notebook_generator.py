@@ -1,4 +1,5 @@
 from google.cloud import storage
+from google.oauth2 import service_account
 import uuid
 import nbformat
 import os
@@ -20,12 +21,22 @@ print(result)
 
     filename = f"{user_id}/{uuid.uuid4()}.ipynb"
     bucket_name = os.getenv("LLMFORGE_NOTEBOOKS")
+    key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "/secrets/llmforge-sa-key/llmforge-backend-service-key")
+
+    if not bucket_name:
+        raise RuntimeError("LLMFORGE_NOTEBOOKS environment variable not set")
+
+    if not os.path.exists(key_path):
+        raise RuntimeError(f"Service account key not found at: {key_path}")
+
+    # Use service account credentials
+    credentials = service_account.Credentials.from_service_account_file(key_path)
+    client = storage.Client(credentials=credentials)
 
     with tempfile.NamedTemporaryFile(mode='w+', suffix=".ipynb", delete=False) as tmp:
         nbformat.write(nb, tmp)
         tmp.flush()
 
-        client = storage.Client()
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(filename)
         blob.upload_from_filename(tmp.name)
