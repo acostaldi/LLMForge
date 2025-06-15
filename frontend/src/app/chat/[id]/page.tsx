@@ -15,6 +15,7 @@ type Deployment = {
     top_k: number;
     max_tokens: number;
   };
+  notebookUrl?: string;
 };
 
 export default function ChatInstancePage({ params }: { params: Promise<{ id: string }> }) {
@@ -25,30 +26,70 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
   const [messages, setMessages] = useState<{ sender: "user" | "bot"; text: string }[]>([]);
   const [input, setInput] = useState("");
   const [apiKey, setApiKey] = useState<string>("");
+  const [notebookUrl, setNotebookUrl] = useState<string | null>(null);
+  
+  const fetchSignedNotebookURL = (path: string) => {
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    fetch(`${BACKEND_URL}/api/get-notebook-url`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notebook_path: path }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.signed_url) setNotebookUrl(data.signed_url);
+      })
+      .catch((err) => console.error("Signed URL fetch error:", err));
+  };
 
-  // Load from localStorage
   useEffect(() => {
-  const stored = JSON.parse(localStorage.getItem("deployments") || "[]");
-  const match = stored.find((d: Deployment) => d.id === id);
-  if (!match) {
-    router.push("/dashboard");
-  } else {
-    const settings = match.settings || {
-      temperature: 0.7,
-      top_k: 40,
-      max_tokens: 256,
-    };
-    setDeployment({ ...match, settings });
+    const stored = JSON.parse(localStorage.getItem("deployments") || "[]");
+    const match = stored.find((d: Deployment) => d.id === id);
+    if (!match) {
+      router.push("/dashboard");
+    } else {
+      const settings = match.settings || {
+        temperature: 0.7,
+        top_k: 40,
+        max_tokens: 256,
+      };
+      setDeployment({ ...match, settings });
 
-    const savedMsgs = JSON.parse(localStorage.getItem(`messages-${id}`) || "[]");
-    setMessages(savedMsgs);
+      const savedMsgs = JSON.parse(localStorage.getItem(`messages-${id}`) || "[]");
+      setMessages(savedMsgs);
 
-    // Set API key
-    setApiKey(match.id + "-APIKEY-XYZ123");
-  }
- }, [id, router]);
+      setApiKey(match.id + "-APIKEY-XYZ123");
 
-  // Save changes to localStorage
+      // Check for cached notebook
+      const cachedNotebook = localStorage.getItem(`notebook-${id}`);
+      if (cachedNotebook) {
+        setNotebookUrl(cachedNotebook);
+      } else {
+        // Try to fetch notebook URL again (fallback)
+        const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        fetch(`${BACKEND_URL}/api/generate-notebook`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: match.model,
+            temperature: settings.temperature,
+            top_k: settings.top_k,
+            max_tokens: settings.max_tokens,
+            user_id: "anonymous", // Replace if using Clerk
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            const path = data.notebook_path;
+            if (!path) return;
+            localStorage.setItem(`notebook-path-${id}`, path);
+            fetchSignedNotebookURL(path);
+          })
+          .catch((err) => console.error("Notebook fetch error:", err));
+      }
+    }
+  }, [id, router]);
+
   const saveDeployment = (updated: Deployment) => {
     const stored = JSON.parse(localStorage.getItem("deployments") || "[]");
     const updatedList = stored.map((d: Deployment) => (d.id === updated.id ? updated : d));
@@ -94,8 +135,33 @@ export default function ChatInstancePage({ params }: { params: Promise<{ id: str
             <p><strong>Provider:</strong> {deployment.provider}</p>
             <p><strong>Status:</strong> {deployment.status}</p>
             <p><strong>Created:</strong> {deployment.createdAt}</p>
+            <div>
+              <h2 className="font-semibold text-lg mb-1">Details</h2>
+              <p><strong>Provider:</strong> {deployment.provider}</p>
+              <p><strong>Status:</strong> {deployment.status}</p>
+              <p><strong>Created:</strong> {deployment.createdAt}</p>
+            </div>
+
+            <div>
+              <h2 className="font-semibold text-lg mt-4 mb-2">Notebook</h2>
+              {notebookUrl ? (
+                <p>
+                  <a
+                    href={notebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    Open in Colab
+                  </a>
+                </p>
+              ) : (
+                <p className="text-gray-500 text-sm">Notebook is being prepared...</p>
+              )}
+            </div>
           </div>
 
+          {/* Settings */}
           <div>
             <h2 className="font-semibold text-lg mt-4 mb-2">Model Settings</h2>
             <label className="block text-sm font-medium">Temperature</label>

@@ -1,19 +1,28 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from app.routes import generate_notebook, get_notebook_url 
 
 app = FastAPI()
 
-# Allow frontend to call API
+# Define allowed origins
+origins = [
+    "https://llm-forge.vercel.app",  # Production
+    "https://llm-forge-git-dev-amadeo-costaldis-projects.vercel.app", #Dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with frontend domain in production
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Define request body schema
+app.include_router(generate_notebook.router)
+app.include_router(get_notebook_url.router)
+
+# Request body schema for testing
 class ChatRequest(BaseModel):
     deployment_id: str
     message: str
@@ -22,5 +31,4 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
-    # For now, just echo back the message
     return {"response": f"Echo: {req.message}"}

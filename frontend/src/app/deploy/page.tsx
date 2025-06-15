@@ -2,32 +2,56 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export default function DeployPage() {
   const router = useRouter();
+  const { user } = useUser();
   const [model, setModel] = useState("");
   const [provider, setProvider] = useState("");
-  //TODO make this dynamic
-  //const [status, setStatus] = useState("Running");
   const status = "Running";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Fake deployment data
     const newDeployment = {
       id: Date.now().toString(),
       model,
       provider,
       status,
       createdAt: new Date().toISOString().slice(0, 10),
+      settings: {
+        temperature: 0.7,
+        top_k: 40,
+        max_tokens: 256,
+      },
     };
 
-    // Save to localStorage for now (real backend later)
+    // Save to localStorage
     const existing = JSON.parse(localStorage.getItem("deployments") || "[]");
     localStorage.setItem("deployments", JSON.stringify([...existing, newDeployment]));
 
-    // Redirect to dashboard
+    // Trigger notebook generation
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/generate-notebook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          temperature: 0.7,
+          top_k: 40,
+          max_tokens: 256,
+          user_id: user?.id || "anonymous",
+        }),
+      });
+
+      const data = await res.json();
+      console.log("Notebook URL:", data.notebook_url); // You could persist or display this later
+    } catch (err) {
+      console.error("Notebook generation failed:", err);
+    }
+
     router.push("/dashboard");
   };
 

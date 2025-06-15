@@ -58,3 +58,7 @@ infra/.terraform/
 # System
 .DS_Store
 .vscode/
+
+# Generated Notebooks
+backend/generated_notebooks/
+service-account-key.json
