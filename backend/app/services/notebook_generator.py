@@ -1,10 +1,9 @@
 from google.cloud import storage
+from google.oauth2 import service_account
 import uuid
 import nbformat
 import os
-import json
 import tempfile
-import datetime
 
 def generate_notebook_file(model: str, temperature: float, top_k: int, max_tokens: int, user_id: str) -> str:
     nb = nbformat.v4.new_notebook()
@@ -21,20 +20,25 @@ print(result)
     ]
 
     filename = f"{user_id}/{uuid.uuid4()}.ipynb"
-    bucket_name = os.getenv("LLMFORGE_NOTEBOOKS") 
+    bucket_name = os.getenv("LLMFORGE_NOTEBOOKS")
+    key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "/secrets/llmforge-sa-key/llmforge-backend-service-key")
 
-    # Write to a temp file
+    if not bucket_name:
+        raise RuntimeError("LLMFORGE_NOTEBOOKS environment variable not set")
+
+    if not os.path.exists(key_path):
+        raise RuntimeError(f"Service account key not found at: {key_path}")
+
+    # Use service account credentials
+    credentials = service_account.Credentials.from_service_account_file(key_path)
+    client = storage.Client(credentials=credentials)
+
     with tempfile.NamedTemporaryFile(mode='w+', suffix=".ipynb", delete=False) as tmp:
         nbformat.write(nb, tmp)
         tmp.flush()
 
-        # Upload to GCS
-        client = storage.Client()
         bucket = client.bucket(bucket_name)
         blob = bucket.blob(filename)
         blob.upload_from_filename(tmp.name)
 
-        # Optional: Make public if desired
-        blob.make_public()
-
-        return blob.public_url
+    return filename
