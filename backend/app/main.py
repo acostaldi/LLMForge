@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from app.routes import generate_notebook
 
 app = FastAPI()
+
+app.include_router(generate_notebook.router)
 
 # Allow frontend to call API
 app.add_middleware(
