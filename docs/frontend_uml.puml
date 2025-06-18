@@ -1,0 +1,14 @@
+@startuml
+class RootLayout {
+  +children: React.ReactNode
+}
+class HomeRedirect
+class DashboardPage
+class DeployPage
+class ChatInstancePage
+RootLayout --> HomeRedirect
+HomeRedirect --> DashboardPage
+DashboardPage --> DeployPage
+DashboardPage --> ChatInstancePage : "Open Instance"
+DeployPage --> DashboardPage : "On Deploy"
+@enduml
