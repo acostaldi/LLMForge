@@ -17,7 +17,7 @@ export default function NotebookEditor({ initial, onSave }: Props) {
       const parsed = JSON.parse(rawJson);
       setError(null);
       onSave(parsed);
-    } catch (e) {
+    } catch {
       setError("❌ Invalid JSON. Please fix the format before saving.");
     }
   };

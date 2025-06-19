@@ -1,13 +1,20 @@
-export interface NotebookCell {
+export type NotebookCell = {
   cell_type: "markdown" | "code";
-  metadata: Record<string, any>;
   source: string[];
-  outputs?: any[];
-}
+  metadata: Record<string, unknown>;
+  execution_count?: number | null;
+  outputs?: unknown[];
+};
 
-export interface Notebook {
+export type NotebookMetadata = {
+  kernelspec?: Record<string, unknown>;
+  language_info?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+
+export type Notebook = {
   cells: NotebookCell[];
-  metadata: Record<string, any>;
+  metadata: NotebookMetadata;
   nbformat: number;
   nbformat_minor: number;
-}
+};
