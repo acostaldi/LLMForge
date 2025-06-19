@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import ReactJson from "react-json-view";
 import { Notebook } from "./types";
 
 type Props = {
@@ -10,29 +9,33 @@ type Props = {
 };
 
 export default function NotebookEditor({ initial, onSave }: Props) {
-  const [notebook, setNotebook] = useState<Notebook>(initial);
+  const [rawJson, setRawJson] = useState(JSON.stringify(initial, null, 2));
+  const [error, setError] = useState<string | null>(null);
 
-  const handleEdit = (edit: any) => {
-    if (edit.updated_src) {
-      setNotebook(edit.updated_src as Notebook);
+  const handleSave = () => {
+    try {
+      const parsed = JSON.parse(rawJson);
+      setError(null);
+      onSave(parsed);
+    } catch (e) {
+      setError("❌ Invalid JSON. Please fix the format before saving.");
     }
   };
 
   return (
     <div className="space-y-4">
-      <ReactJson
-        src={notebook}
-        name={false}
-        enableClipboard={false}
-        onEdit={handleEdit}
-        onAdd={handleEdit}
-        onDelete={handleEdit}
+      <textarea
+        value={rawJson}
+        onChange={(e) => setRawJson(e.target.value)}
+        className="w-full h-96 border rounded p-2 font-mono text-sm resize-y"
+        spellCheck={false}
       />
+      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="flex space-x-2">
         <button
-          className="px-4 py-2 bg-green-600 text-white rounded"
-          onClick={() => onSave(notebook)}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={handleSave}
         >
           Save Notebook
         </button>
