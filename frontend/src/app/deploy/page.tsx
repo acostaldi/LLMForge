@@ -9,10 +9,13 @@ export default function DeployPage() {
   const { user } = useUser();
   const [model, setModel] = useState("");
   const [provider, setProvider] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const status = "Running";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const newDeployment = {
       id: Date.now().toString(),
@@ -53,6 +56,7 @@ export default function DeployPage() {
     }
 
     router.push("/dashboard");
+    setIsSubmitting(false);
   };
 
   return (
@@ -85,9 +89,10 @@ export default function DeployPage() {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isSubmitting}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          Deploy
+          {isSubmitting ? "Deploying..." : "Deploy"}
         </button>
       </form>
     </div>
