@@ -79,11 +79,15 @@ export default function DeployPage() {
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
+            required
             className="w-full border p-2 rounded mt-1"
           >
-            <option>Colab</option>
-            <option>AWS</option>
-            <option>GCP</option>
+            <option value="" disabled>
+              Select provider
+            </option>
+            <option value="Colab">Colab</option>
+            <option value="AWS">AWS</option>
+            <option value="GCP">GCP</option>
           </select>
         </div>
 
