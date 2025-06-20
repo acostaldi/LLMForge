@@ -9,10 +9,13 @@ export default function DeployPage() {
   const { user } = useUser();
   const [model, setModel] = useState("");
   const [provider, setProvider] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const status = "Running";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const newDeployment = {
       id: Date.now().toString(),
@@ -53,6 +56,7 @@ export default function DeployPage() {
     }
 
     router.push("/dashboard");
+    setIsSubmitting(false);
   };
 
   return (
@@ -75,19 +79,24 @@ export default function DeployPage() {
           <select
             value={provider}
             onChange={(e) => setProvider(e.target.value)}
+            required
             className="w-full border p-2 rounded mt-1"
           >
-            <option>Colab</option>
-            <option>AWS</option>
-            <option>GCP</option>
+            <option value="" disabled>
+              Select provider
+            </option>
+            <option value="Colab">Colab</option>
+            <option value="AWS">AWS</option>
+            <option value="GCP">GCP</option>
           </select>
         </div>
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={isSubmitting}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          Deploy
+          {isSubmitting ? "Deploying..." : "Deploy"}
         </button>
       </form>
     </div>

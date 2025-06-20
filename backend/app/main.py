@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from app.routes import generate_notebook, get_notebook_url 
+from app.routes import generate_notebook, get_notebook_url, notebook
 
 app = FastAPI()
 
@@ -21,6 +21,7 @@ app.add_middleware(
 
 app.include_router(generate_notebook.router)
 app.include_router(get_notebook_url.router)
+app.include_router(notebook.router)
 
 #Test comment
 # Request body schema for testing
