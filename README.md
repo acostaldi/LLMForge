@@ -39,3 +39,13 @@ This makes LLMForge especially useful for:
 - Small teams needing secure but flexible model orchestration
 
 ---
+
+## Backend Requirements
+
+Install backend dependencies using `backend/requirements.txt`:
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+The backend Dockerfile also installs from this file.
